@@ -1,0 +1,90 @@
+[
+  {
+    "name": "乾",
+    "symbol": "☰",
+    "element": "金",
+    "direction": "西北",
+    "family": "父",
+    "animal": "马",
+    "bodyPart": "头",
+    "nature": "天",
+    "binary": "111"
+  },
+  {
+    "name": "兑",
+    "symbol": "☱",
+    "element": "金",
+    "direction": "西",
+    "family": "少女",
+    "animal": "羊",
+    "bodyPart": "口",
+    "nature": "泽",
+    "binary": "110"
+  },
+  {
+    "name": "离",
+    "symbol": "☲",
+    "element": "火",
+    "direction": "南",
+    "family": "中女",
+    "animal": "雉",
+    "bodyPart": "目",
+    "nature": "火",
+    "binary": "101"
+  },
+  {
+    "name": "震",
+    "symbol": "☳",
+    "element": "木",
+    "direction": "东",
+    "family": "长男",
+    "animal": "龙",
+    "bodyPart": "足",
+    "nature": "雷",
+    "binary": "100"
+  },
+  {
+    "name": "巽",
+    "symbol": "☴",
+    "element": "木",
+    "direction": "东南",
+    "family": "长女",
+    "animal": "鸡",
+    "bodyPart": "股",
+    "nature": "风",
+    "binary": "011"
+  },
+  {
+    "name": "坎",
+    "symbol": "☵",
+    "element": "水",
+    "direction": "北",
+    "family": "中男",
+    "animal": "豕",
+    "bodyPart": "耳",
+    "nature": "水",
+    "binary": "010"
+  },
+  {
+    "name": "艮",
+    "symbol": "☶",
+    "element": "土",
+    "direction": "东北",
+    "family": "少男",
+    "animal": "狗",
+    "bodyPart": "手",
+    "nature": "山",
+    "binary": "001"
+  },
+  {
+    "name": "坤",
+    "symbol": "☷",
+    "element": "土",
+    "direction": "西南",
+    "family": "母",
+    "animal": "牛",
+    "bodyPart": "腹",
+    "nature": "地",
+    "binary": "000"
+  }
+]

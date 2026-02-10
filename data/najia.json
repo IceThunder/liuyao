@@ -1,0 +1,82 @@
+{
+  "description": "纳甲装卦数据 - 八卦纳天干地支对照表",
+  "earthlyBranchElements": {
+    "子": "水", "丑": "土", "寅": "木", "卯": "木", "辰": "土", "巳": "火",
+    "午": "火", "未": "土", "申": "金", "酉": "金", "戌": "土", "亥": "水"
+  },
+  "trigrams": {
+    "乾": {
+      "innerStem": "甲",
+      "outerStem": "壬",
+      "yinYang": "阳",
+      "innerBranches": ["子", "寅", "辰"],
+      "outerBranches": ["午", "申", "戌"],
+      "innerElements": ["水", "木", "土"],
+      "outerElements": ["火", "金", "土"]
+    },
+    "坤": {
+      "innerStem": "乙",
+      "outerStem": "癸",
+      "yinYang": "阴",
+      "innerBranches": ["未", "巳", "卯"],
+      "outerBranches": ["丑", "亥", "酉"],
+      "innerElements": ["土", "火", "木"],
+      "outerElements": ["土", "水", "金"]
+    },
+    "震": {
+      "innerStem": "庚",
+      "outerStem": "庚",
+      "yinYang": "阳",
+      "innerBranches": ["子", "寅", "辰"],
+      "outerBranches": ["午", "申", "戌"],
+      "innerElements": ["水", "木", "土"],
+      "outerElements": ["火", "金", "土"]
+    },
+    "巽": {
+      "innerStem": "辛",
+      "outerStem": "辛",
+      "yinYang": "阴",
+      "innerBranches": ["丑", "亥", "酉"],
+      "outerBranches": ["未", "巳", "卯"],
+      "innerElements": ["土", "水", "金"],
+      "outerElements": ["土", "火", "木"]
+    },
+    "坎": {
+      "innerStem": "戊",
+      "outerStem": "戊",
+      "yinYang": "阳",
+      "innerBranches": ["寅", "辰", "午"],
+      "outerBranches": ["申", "戌", "子"],
+      "innerElements": ["木", "土", "火"],
+      "outerElements": ["金", "土", "水"]
+    },
+    "离": {
+      "innerStem": "己",
+      "outerStem": "己",
+      "yinYang": "阴",
+      "innerBranches": ["卯", "丑", "亥"],
+      "outerBranches": ["酉", "未", "巳"],
+      "innerElements": ["木", "土", "水"],
+      "outerElements": ["金", "土", "火"]
+    },
+    "艮": {
+      "innerStem": "丙",
+      "outerStem": "丙",
+      "yinYang": "阳",
+      "innerBranches": ["辰", "午", "申"],
+      "outerBranches": ["戌", "子", "寅"],
+      "innerElements": ["土", "火", "金"],
+      "outerElements": ["土", "水", "木"]
+    },
+    "兑": {
+      "innerStem": "丁",
+      "outerStem": "丁",
+      "yinYang": "阴",
+      "innerBranches": ["巳", "卯", "丑"],
+      "outerBranches": ["亥", "酉", "未"],
+      "innerElements": ["火", "木", "土"],
+      "outerElements": ["水", "金", "土"]
+    }
+  },
+  "usage": "装卦时：下卦用innerStem+innerBranches(初爻到三爻)，上卦用outerStem+outerBranches(四爻到六爻)"
+}
