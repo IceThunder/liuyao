@@ -7,6 +7,7 @@ import { YaoValue } from '@/types';
 import { getYaoType, isMovingYao, getChangedYaoType } from '@/lib/divination';
 import { getTrigramsFromYaos, getChangedTrigramsFromYaos, TRIGRAMS } from '@/lib/hexagram';
 import Hexagram from '@/components/Hexagram';
+import AiInterpretation from '@/components/AiInterpretation';
 
 interface StoredData {
   id: string;
@@ -139,19 +140,21 @@ function ResultContent() {
         </div>
       </motion.div>
 
-      {/* AI解卦预留区域 */}
+      {/* AI解卦 */}
       <motion.div
-        className="bg-ink-light/30 border border-gold/10 rounded-lg p-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
       >
-        <h2 className="font-serif-cn text-gold text-lg mb-4">AI 解卦</h2>
-        <div className="text-foreground/20 text-center py-8 font-serif-cn">
-          <p className="text-2xl mb-2">🔮</p>
-          <p>AI 解卦功能即将上线</p>
-          <p className="text-xs mt-1">将结合卦象、爻辞、六亲关系进行智能分析</p>
-        </div>
+        <AiInterpretation
+          question={question}
+          yaos={yaos}
+          upperTrigram={upper}
+          lowerTrigram={lower}
+          changedUpperTrigram={changed?.upper}
+          changedLowerTrigram={changed?.lower}
+          divinationId={data.id}
+        />
       </motion.div>
     </div>
   );
