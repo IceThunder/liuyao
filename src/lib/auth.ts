@@ -10,22 +10,26 @@ declare global {
     AUTH_SECRET: string;
     AUTH_GOOGLE_ID: string;
     AUTH_GOOGLE_SECRET: string;
+    AI_API_KEY: string;
+    AI_API_URL: string;
+    AI_MODEL: string;
   }
 }
 
-async function getD1() {
+async function getCfEnv() {
   const { env } = await getCloudflareContext({ async: true });
-  return env.DB;
+  return env;
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth(async () => {
-  const db = await getD1();
+  const env = await getCfEnv();
   return {
-    adapter: D1Adapter(db as never),
+    secret: env.AUTH_SECRET,
+    adapter: D1Adapter(env.DB as never),
     providers: [
       Google({
-        clientId: process.env.AUTH_GOOGLE_ID,
-        clientSecret: process.env.AUTH_GOOGLE_SECRET,
+        clientId: env.AUTH_GOOGLE_ID,
+        clientSecret: env.AUTH_GOOGLE_SECRET,
       }),
     ],
     session: {

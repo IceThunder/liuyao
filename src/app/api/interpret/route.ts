@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { YaoValue } from '@/types';
 import { buildSystemPrompt, buildUserPrompt } from '@/lib/aiPrompt';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 interface InterpretRequest {
   question: string;
@@ -13,9 +14,10 @@ interface InterpretRequest {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.AI_API_KEY;
-  const apiUrl = process.env.AI_API_URL;
-  const model = process.env.AI_MODEL;
+  const { env } = await getCloudflareContext({ async: true });
+  const apiKey = env.AI_API_KEY;
+  const apiUrl = env.AI_API_URL;
+  const model = env.AI_MODEL;
 
   if (!apiKey || !apiUrl || !model) {
     return new Response(
