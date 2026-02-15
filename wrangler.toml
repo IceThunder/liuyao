@@ -10,7 +10,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "liuyao-auth"
-database_id = "your-database-id-here"
+database_id = "0ff4e927-5bf1-4d28-8b48-8a40c5fe79f5"
 
 [vars]
 AI_API_URL = "https://api.bltcy.ai/v1"
