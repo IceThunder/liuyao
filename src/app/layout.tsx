@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
+import { I18nProvider } from "@/lib/i18n/context";
+import AuthProvider from "@/components/AuthProvider";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
+
+const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_ID;
 
 export const metadata: Metadata = {
   title: "六爻占卜 - 古法铜钱起卦",
@@ -20,22 +27,24 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
+      {adsenseId && (
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      )}
       <body className="bg-background text-foreground antialiased bg-texture min-h-screen">
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-ink/80 backdrop-blur-md border-b border-gold/10">
-          <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="/" className="font-serif-cn text-gold text-lg font-bold tracking-wider">
-              六爻占卜
-            </a>
-            <div className="flex gap-6 text-sm">
-              <a href="/divine" className="text-foreground/70 hover:text-gold transition-colors">起卦</a>
-              <a href="/hexagrams" className="text-foreground/70 hover:text-gold transition-colors">卦典</a>
-              <a href="/history" className="text-foreground/70 hover:text-gold transition-colors">历史</a>
-            </div>
-          </div>
-        </nav>
-        <main className="pt-14">
-          {children}
-        </main>
+        <AuthProvider>
+          <I18nProvider locale="zh-CN">
+            <NavBar />
+            <main className="pt-14">
+              {children}
+            </main>
+            <Footer />
+          </I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );

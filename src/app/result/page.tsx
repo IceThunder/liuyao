@@ -6,8 +6,10 @@ import { useSearchParams } from 'next/navigation';
 import { YaoValue } from '@/types';
 import { getYaoType, isMovingYao, getChangedYaoType } from '@/lib/divination';
 import { getTrigramsFromYaos, getChangedTrigramsFromYaos, TRIGRAMS } from '@/lib/hexagram';
+import { useI18n } from '@/lib/i18n/context';
 import Hexagram from '@/components/Hexagram';
 import AiInterpretation from '@/components/AiInterpretation';
+import AdUnit from '@/components/AdUnit';
 
 interface StoredData {
   id: string;
@@ -18,7 +20,10 @@ interface StoredData {
 
 function ResultContent() {
   const searchParams = useSearchParams();
+  const { locale, t } = useI18n();
   const [data, setData] = useState<StoredData | null>(null);
+
+  const posKeys = ['yao.pos.1', 'yao.pos.2', 'yao.pos.3', 'yao.pos.4', 'yao.pos.5', 'yao.pos.6'];
 
   useEffect(() => {
     const stored = localStorage.getItem('liuyao-current');
@@ -30,7 +35,7 @@ function ResultContent() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-foreground/30 font-serif-cn">加载中...</p>
+        <p className="text-foreground/30 font-serif-cn">{t('result.loading')}</p>
       </div>
     );
   }
@@ -39,19 +44,12 @@ function ResultContent() {
   const { upper, lower } = getTrigramsFromYaos(yaos);
   const changed = getChangedTrigramsFromYaos(yaos);
   const hasMoving = yaos.some(v => isMovingYao(v));
-  const hexName = `${TRIGRAMS[upper].nature}${TRIGRAMS[lower].nature}`;
 
-  // 变卦的爻值
   const changedYaos: YaoValue[] = yaos.map(v => {
     if (v === 9) return 8 as YaoValue;
     if (v === 6) return 7 as YaoValue;
     return v;
   });
-
-  let changedHexName = '';
-  if (changed) {
-    changedHexName = `${TRIGRAMS[changed.upper].nature}${TRIGRAMS[changed.lower].nature}`;
-  }
 
   return (
     <div className="min-h-screen py-12 px-4 max-w-4xl mx-auto">
@@ -60,7 +58,7 @@ function ResultContent() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        卦象解析
+        {t('result.title')}
       </motion.h1>
 
       {question && (
@@ -70,7 +68,7 @@ function ResultContent() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          所问：{question}
+          {t('result.question.prefix')}{question}
         </motion.p>
       )}
 
@@ -79,7 +77,7 @@ function ResultContent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        {new Date(timestamp).toLocaleString('zh-CN')}
+        {new Date(timestamp).toLocaleString(locale)}
       </motion.p>
 
       {/* 本卦与变卦 */}
@@ -90,9 +88,9 @@ function ResultContent() {
         transition={{ delay: 0.5 }}
       >
         <div className="flex flex-col items-center">
-          <Hexagram yaos={yaos} title="本卦" size="lg" />
+          <Hexagram yaos={yaos} title={t('result.original')} size="lg" />
           <p className="mt-3 font-serif-cn text-gold/60 text-sm">
-            {upper}{TRIGRAMS[upper].nature} 上 / {lower}{TRIGRAMS[lower].nature} 下
+            {upper}{TRIGRAMS[upper].nature} {t('result.upper')} / {lower}{TRIGRAMS[lower].nature} {t('result.lower')}
           </p>
         </div>
 
@@ -100,9 +98,9 @@ function ResultContent() {
           <>
             <div className="flex items-center text-gold/30 text-2xl font-serif-cn">→</div>
             <div className="flex flex-col items-center">
-              <Hexagram yaos={changedYaos} title="变卦" size="lg" showMoving={false} />
+              <Hexagram yaos={changedYaos} title={t('result.changed')} size="lg" showMoving={false} />
               <p className="mt-3 font-serif-cn text-gold/60 text-sm">
-                {changed.upper}{TRIGRAMS[changed.upper].nature} 上 / {changed.lower}{TRIGRAMS[changed.lower].nature} 下
+                {changed.upper}{TRIGRAMS[changed.upper].nature} {t('result.upper')} / {changed.lower}{TRIGRAMS[changed.lower].nature} {t('result.lower')}
               </p>
             </div>
           </>
@@ -116,22 +114,21 @@ function ResultContent() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        <h2 className="font-serif-cn text-gold text-lg mb-4">六爻详情</h2>
+        <h2 className="font-serif-cn text-gold text-lg mb-4">{t('result.details.title')}</h2>
         <div className="space-y-2">
           {[...yaos].reverse().map((yao, idx) => {
             const pos = 6 - idx;
-            const posNames = ['初', '二', '三', '四', '五', '上'];
             const yaoType = getYaoType(yao);
             const moving = isMovingYao(yao);
             return (
               <div key={idx} className="flex items-center gap-4 text-sm py-1 border-b border-gold/5">
-                <span className="text-gold/40 w-10 font-serif-cn">{posNames[pos - 1]}爻</span>
+                <span className="text-gold/40 w-10 font-serif-cn">{t(posKeys[pos - 1])}{t('yao.suffix')}</span>
                 <span className={`w-12 ${yaoType === 'yang' ? 'text-gold' : 'text-foreground/50'}`}>
-                  {yaoType === 'yang' ? '⚊ 阳' : '⚋ 阴'}
+                  {yaoType === 'yang' ? t('result.yang') : t('result.yin')}
                 </span>
                 {moving && (
                   <span className="text-vermilion text-xs px-2 py-0.5 rounded bg-vermilion/10">
-                    动爻 → {yao === 9 ? '变阴' : '变阳'}
+                    {t('result.moving')} {yao === 9 ? t('result.change.yin') : t('result.change.yang')}
                   </span>
                 )}
               </div>
@@ -139,6 +136,9 @@ function ResultContent() {
           })}
         </div>
       </motion.div>
+
+      {/* 广告位 */}
+      <AdUnit adSlot="result-mid" adFormat="horizontal" />
 
       {/* AI解卦 */}
       <motion.div
@@ -161,8 +161,9 @@ function ResultContent() {
 }
 
 export default function ResultPage() {
+  const { t } = useI18n();
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-foreground/30 font-serif-cn">加载中...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-foreground/30 font-serif-cn">{t('result.loading')}</p></div>}>
       <ResultContent />
     </Suspense>
   );

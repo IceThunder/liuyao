@@ -2,8 +2,6 @@ import { NextRequest } from 'next/server';
 import { YaoValue } from '@/types';
 import { buildSystemPrompt, buildUserPrompt } from '@/lib/aiPrompt';
 
-export const runtime = 'edge';
-
 interface InterpretRequest {
   question: string;
   yaos: YaoValue[];
@@ -11,6 +9,7 @@ interface InterpretRequest {
   lowerTrigram: string;
   changedUpperTrigram?: string;
   changedLowerTrigram?: string;
+  language?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -20,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   if (!apiKey || !apiUrl || !model) {
     return new Response(
-      JSON.stringify({ error: 'AI 服务未配置' }),
+      JSON.stringify({ error: 'AI service not configured' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -30,21 +29,21 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return new Response(
-      JSON.stringify({ error: '请求格式错误' }),
+      JSON.stringify({ error: 'Invalid request format' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const { question, yaos, upperTrigram, lowerTrigram, changedUpperTrigram, changedLowerTrigram } = body;
+  const { question, yaos, upperTrigram, lowerTrigram, changedUpperTrigram, changedLowerTrigram, language } = body;
 
   if (!yaos || yaos.length !== 6) {
     return new Response(
-      JSON.stringify({ error: '爻值数据无效' }),
+      JSON.stringify({ error: 'Invalid yao data' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const systemPrompt = buildSystemPrompt();
+  const systemPrompt = buildSystemPrompt(language);
   const userPrompt = buildUserPrompt({
     question,
     yaos,
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
       const errorText = await response.text();
       console.error('AI API error:', response.status, errorText);
       return new Response(
-        JSON.stringify({ error: 'AI 服务请求失败' }),
+        JSON.stringify({ error: 'AI service request failed' }),
         { status: 502, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
     const upstream = response.body;
     if (!upstream) {
       return new Response(
-        JSON.stringify({ error: 'AI 服务无响应' }),
+        JSON.stringify({ error: 'No response from AI service' }),
         { status: 502, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -146,7 +145,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('AI request error:', err);
     return new Response(
-      JSON.stringify({ error: '网络错误，请稍后重试' }),
+      JSON.stringify({ error: 'Network error, please retry' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

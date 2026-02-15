@@ -3,8 +3,14 @@ import { TRIGRAMS } from '@/lib/hexagram';
 import { getYaoType, isMovingYao } from '@/lib/divination';
 import { findHexagramByTrigrams, HexagramJsonEntry } from '@/lib/hexagramLookup';
 
-export function buildSystemPrompt(): string {
-  return `你是一位精通周易六爻的占卜大师，拥有深厚的易学功底。你的解卦风格既尊重传统又通俗易懂。
+const languageInstructions: Record<string, string> = {
+  en: `Please reply in English. When first mentioning key Chinese divination terms (such as hexagram names, trigram names, 五行, 六亲, 六神, 动爻, etc.), include the original Chinese in parentheses. For example: "The Original Hexagram (本卦) is..."`,
+  ja: `日本語でお答えください。卦名・八卦名・五行・六親・六神・動爻などの重要な術語を最初に言及する際は、括弧内に中国語の原文を添えてください。例：「本卦（本卦）は…」`,
+  ko: `한국어로 답변해 주세요. 괘 이름, 팔괘 이름, 오행, 육친, 육신, 동효 등의 주요 술어를 처음 언급할 때는 괄호 안에 중국어 원문을 함께 표기해 주세요. 예: "본괘(本卦)는..."`,
+};
+
+export function buildSystemPrompt(language?: string): string {
+  let prompt = `你是一位精通周易六爻的占卜大师，拥有深厚的易学功底。你的解卦风格既尊重传统又通俗易懂。
 
 请按以下结构进行解读：
 
@@ -24,11 +30,18 @@ export function buildSystemPrompt(): string {
 针对求测事项给出切实可行的建议，语言温和而有洞见。
 
 要求：
-- 使用中文回复
 - 使用 Markdown 格式
 - 解读应结合求测者的具体问题
 - 语气沉稳、温和，如同一位智慧长者在指点迷津
 - 避免过于绝对的判断，多用"宜"、"不宜"、"可"、"慎"等措辞`;
+
+  if (language && language !== 'zh-CN' && languageInstructions[language]) {
+    prompt += `\n\n**重要语言要求：**\n${languageInstructions[language]}`;
+  } else {
+    prompt += `\n- 使用中文回复`;
+  }
+
+  return prompt;
 }
 
 export function buildUserPrompt(params: {

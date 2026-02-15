@@ -7,6 +7,16 @@ compatibility_flags = ["nodejs_compat"]
 directory = ".open-next/assets"
 binding = "ASSETS"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "liuyao-auth"
+database_id = "your-database-id-here"
+
 [vars]
-AI_API_URL = "https://api.bltcy.ai"
+AI_API_URL = "https://api.bltcy.ai/v1"
 AI_MODEL = "gpt-5.2"
+
+# Auth variables (set via wrangler secret)
+# AUTH_SECRET
+# AUTH_GOOGLE_ID
+# AUTH_GOOGLE_SECRET

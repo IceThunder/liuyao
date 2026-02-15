@@ -1,40 +1,100 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-
-interface HistoryItem {
-  id: string;
-  question: string;
-  timestamp: number;
-  yaos: number[];
-}
+import { useSession } from 'next-auth/react';
+import { useI18n } from '@/lib/i18n/context';
+import { getLocalizedPath } from '@/lib/i18n/config';
+import {
+  getLocalHistory,
+  saveLocalHistory,
+  getCloudHistory,
+  deleteCloudRecord,
+  syncLocalToCloud,
+  type HistoryRecord,
+} from '@/lib/historyStore';
+import AdUnit from '@/components/AdUnit';
 
 export default function HistoryPage() {
   const router = useRouter();
-  const [records, setRecords] = useState<HistoryItem[]>([]);
+  const { locale, t } = useI18n();
+  const { data: session, status: authStatus } = useSession();
+  const [records, setRecords] = useState<HistoryRecord[]>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [isCloud, setIsCloud] = useState(false);
+
+  const loadRecords = useCallback(async () => {
+    if (session?.user?.id) {
+      try {
+        const cloud = await getCloudHistory();
+        setRecords(cloud);
+        setIsCloud(true);
+      } catch {
+        setRecords(getLocalHistory());
+        setIsCloud(false);
+      }
+    } else {
+      setRecords(getLocalHistory());
+      setIsCloud(false);
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
-    const stored = localStorage.getItem('liuyao-history');
-    if (stored) {
-      setRecords(JSON.parse(stored));
+    if (authStatus === 'loading') return;
+    loadRecords();
+  }, [authStatus, loadRecords]);
+
+  // Auto-sync local records to cloud on first login
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    const syncKey = `liuyao-synced-${session.user.id}`;
+    if (localStorage.getItem(syncKey)) return;
+
+    const local = getLocalHistory();
+    if (local.length === 0) {
+      localStorage.setItem(syncKey, '1');
+      return;
     }
-  }, []);
 
-  const handleView = (record: HistoryItem) => {
+    setSyncing(true);
+    syncLocalToCloud()
+      .then(() => {
+        localStorage.setItem(syncKey, '1');
+        loadRecords();
+      })
+      .catch(() => {})
+      .finally(() => setSyncing(false));
+  }, [session?.user?.id, loadRecords]);
+
+  const handleView = (record: HistoryRecord) => {
     localStorage.setItem('liuyao-current', JSON.stringify(record));
-    router.push(`/result?id=${record.id}`);
+    router.push(getLocalizedPath(`/result?id=${record.id}`, locale));
   };
 
-  const handleDelete = (id: string) => {
-    const updated = records.filter(r => r.id !== id);
-    setRecords(updated);
-    localStorage.setItem('liuyao-history', JSON.stringify(updated));
+  const handleDelete = async (id: string) => {
+    if (isCloud) {
+      try {
+        await deleteCloudRecord(id);
+        setRecords(prev => prev.filter(r => r.id !== id));
+      } catch {
+        // fallback
+      }
+    } else {
+      const updated = records.filter(r => r.id !== id);
+      setRecords(updated);
+      saveLocalHistory(updated);
+    }
   };
 
-  const handleClearAll = () => {
-    if (confirm('确定清空所有历史记录？')) {
+  const handleClearAll = async () => {
+    if (!confirm(t('history.clear.confirm'))) return;
+    if (isCloud) {
+      for (const r of records) {
+        try { await deleteCloudRecord(r.id); } catch {}
+      }
+      setRecords([]);
+    } else {
       setRecords([]);
       localStorage.removeItem('liuyao-history');
     }
@@ -47,7 +107,7 @@ export default function HistoryPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        占卜历史
+        {t('history.title')}
       </motion.h1>
 
       <motion.p
@@ -56,8 +116,24 @@ export default function HistoryPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        本地存储的占卜记录
+        {t('history.subtitle')}
+        {isCloud && (
+          <span className="ml-2 text-jade text-xs">({t('history.cloud')})</span>
+        )}
       </motion.p>
+
+      {syncing && (
+        <motion.p
+          className="text-center text-gold/60 text-sm mb-4 font-serif-cn"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {t('history.syncing')}
+        </motion.p>
+      )}
+
+      {/* 广告位 */}
+      <AdUnit adSlot="history-top" adFormat="horizontal" className="mb-4" />
 
       {records.length > 0 && (
         <motion.div
@@ -69,7 +145,7 @@ export default function HistoryPage() {
             onClick={handleClearAll}
             className="text-xs text-vermilion/50 hover:text-vermilion transition-colors"
           >
-            清空全部
+            {t('history.clear')}
           </button>
         </motion.div>
       )}
@@ -80,13 +156,12 @@ export default function HistoryPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p className="text-4xl mb-4">📜</p>
-          <p className="text-foreground/30 font-serif-cn">暂无占卜记录</p>
+          <p className="text-foreground/30 font-serif-cn">{t('history.empty')}</p>
           <button
-            onClick={() => router.push('/divine')}
+            onClick={() => router.push(getLocalizedPath('/divine', locale))}
             className="mt-4 text-gold/50 hover:text-gold text-sm font-serif-cn transition-colors"
           >
-            去起卦 →
+            {t('history.empty.action')}
           </button>
         </motion.div>
       ) : (
@@ -108,15 +183,15 @@ export default function HistoryPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-serif-cn text-gold/80 text-sm">
-                      {record.question || '未填写问题'}
+                      {record.question || t('history.no.question')}
                     </p>
                     <p className="text-foreground/20 text-xs mt-1">
-                      {new Date(record.timestamp).toLocaleString('zh-CN')}
+                      {new Date(record.timestamp).toLocaleString(locale)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-foreground/20 text-xs">
-                      {record.yaos.map(y => 
+                      {record.yaos.map(y =>
                         y === 7 || y === 9 ? '⚊' : '⚋'
                       ).join(' ')}
                     </span>

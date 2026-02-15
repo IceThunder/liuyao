@@ -104,3 +104,21 @@ body {
 .taiji-rotate {
   animation: taiji-spin 20s linear infinite;
 }
+
+/* Google Ads 容器 */
+.ad-container {
+  margin: 1.5rem auto;
+  max-width: 728px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 46, 0.3);
+  border: 1px solid rgba(212, 168, 83, 0.05);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.ad-container:empty {
+  display: none;
+}

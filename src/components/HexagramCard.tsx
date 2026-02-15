@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useI18n } from '@/lib/i18n/context';
 
 interface HexagramCardProps {
   index: number;
@@ -9,6 +10,8 @@ interface HexagramCardProps {
 }
 
 export default function HexagramCard({ index, name, onClick }: HexagramCardProps) {
+  const { t } = useI18n();
+
   return (
     <motion.div
       whileHover={{ scale: 1.05, borderColor: 'rgba(212,168,83,0.5)' }}
@@ -24,7 +27,7 @@ export default function HexagramCard({ index, name, onClick }: HexagramCardProps
       "
     >
       <span className="text-gold/50 text-xs mb-1">
-        第{index}卦
+        {t('hexagrams.card.prefix', { n: index })}
       </span>
       <span className="font-serif-cn text-gold text-sm font-semibold">
         {name}

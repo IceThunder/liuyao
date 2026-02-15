@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { HEXAGRAM_NAMES } from '@/lib/hexagramData';
+import { useI18n } from '@/lib/i18n/context';
 import HexagramCard from '@/components/HexagramCard';
+import AdUnit from '@/components/AdUnit';
 
 export default function HexagramsPage() {
+  const { t } = useI18n();
   const [search, setSearch] = useState('');
 
   const filtered = HEXAGRAM_NAMES
@@ -19,7 +22,7 @@ export default function HexagramsPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        六十四卦
+        {t('hexagrams.title')}
       </motion.h1>
 
       <motion.p
@@ -28,10 +31,9 @@ export default function HexagramsPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        周易六十四卦总览
+        {t('hexagrams.subtitle')}
       </motion.p>
 
-      {/* 搜索 */}
       <motion.div
         className="mb-8 max-w-md mx-auto"
         initial={{ opacity: 0 }}
@@ -42,7 +44,7 @@ export default function HexagramsPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜索卦名..."
+          placeholder={t('hexagrams.search')}
           className="
             w-full px-4 py-2 rounded-lg
             bg-ink-light/50 border border-gold/10
@@ -53,7 +55,9 @@ export default function HexagramsPage() {
         />
       </motion.div>
 
-      {/* 卦象网格 */}
+      {/* 广告位 */}
+      <AdUnit adSlot="hexagrams-top" adFormat="horizontal" className="mb-4" />
+
       <motion.div
         className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2"
         initial={{ opacity: 0 }}
@@ -71,7 +75,7 @@ export default function HexagramsPage() {
 
       {filtered.length === 0 && (
         <p className="text-center text-foreground/20 mt-12 font-serif-cn">
-          未找到匹配的卦象
+          {t('hexagrams.empty')}
         </p>
       )}
     </div>

@@ -2,8 +2,14 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n/context';
+import { getLocalizedPath } from '@/lib/i18n/config';
+import BilingualText from '@/components/BilingualText';
+import AdUnit from '@/components/AdUnit';
 
 export default function HomePage() {
+  const { locale, t } = useI18n();
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4">
       {/* 太极背景动画 */}
@@ -11,7 +17,6 @@ export default function HomePage() {
         <div className="taiji-rotate opacity-[0.03]">
           <svg width="600" height="600" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="98" fill="none" stroke="#d4a853" strokeWidth="2"/>
-            {/* 太极图 */}
             <path d="M100,2 A98,98 0 0,1 100,198 A49,49 0 0,1 100,100 A49,49 0 0,0 100,2" fill="#d4a853"/>
             <circle cx="100" cy="51" r="12" fill="#0d0d1a"/>
             <circle cx="100" cy="149" r="12" fill="#d4a853"/>
@@ -51,32 +56,38 @@ export default function HomePage() {
           六爻占卜
         </motion.h1>
 
-        <motion.p
+        <motion.div
           className="text-foreground/50 text-lg md:text-xl mb-2 font-serif-cn"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          古法铜钱起卦 · 纳甲装卦 · 六亲六神
-        </motion.p>
+          <BilingualText
+            tKey="home.subtitle"
+            zhClassName="text-foreground/50"
+            translatedClassName="block text-foreground/30 text-sm mt-1"
+          />
+        </motion.div>
 
-        <motion.p
+        <motion.div
           className="text-foreground/30 text-sm max-w-md mx-auto mb-12 leading-relaxed"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
         >
-          六爻预测，源自《周易》，以三枚铜钱摇卦，
-          六摇而成卦，配以纳甲、六亲、六神，
-          断吉凶、明得失、知进退。
-        </motion.p>
+          <BilingualText
+            tKey="home.description"
+            zhClassName="text-foreground/30"
+            translatedClassName="block text-foreground/20 text-xs mt-2"
+          />
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5 }}
         >
-          <Link href="/divine">
+          <Link href={getLocalizedPath('/divine', locale)}>
             <motion.button
               className="
                 px-10 py-4 rounded-lg
@@ -93,11 +104,16 @@ export default function HomePage() {
                 animate={{ x: ['-100%', '100%'] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
               />
-              <span className="relative z-10">开始占卜</span>
+              <span className="relative z-10">{t('home.start')}</span>
             </motion.button>
           </Link>
         </motion.div>
       </motion.div>
+
+      {/* 广告位 */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 z-10">
+        <AdUnit adSlot="home-bottom" adFormat="horizontal" />
+      </div>
 
       {/* 底部装饰线 */}
       <motion.div
@@ -108,7 +124,13 @@ export default function HomePage() {
       >
         <div className="flex items-center gap-3 text-gold/20">
           <div className="w-16 h-px bg-gold/20" />
-          <span className="text-xs font-serif-cn">易有太极 是生两仪</span>
+          <span className="text-xs font-serif-cn">
+            <BilingualText
+              tKey="home.footer"
+              zhClassName="text-gold/20"
+              translatedClassName="block text-gold/10 text-[10px] mt-0.5"
+            />
+          </span>
           <div className="w-16 h-px bg-gold/20" />
         </div>
       </motion.div>

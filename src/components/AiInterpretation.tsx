@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { YaoValue } from '@/types';
+import { useI18n } from '@/lib/i18n/context';
 
 interface AiInterpretationProps {
   question: string;
@@ -81,6 +82,7 @@ export default function AiInterpretation({
   changedLowerTrigram,
   divinationId,
 }: AiInterpretationProps) {
+  const { locale, t } = useI18n();
   const [interpretation, setInterpretation] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -116,17 +118,18 @@ export default function AiInterpretation({
           lowerTrigram,
           changedUpperTrigram,
           changedLowerTrigram,
+          language: locale,
         }),
         signal: controller.signal,
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || `请求失败 (${response.status})`);
+        throw new Error(data.error || `${t('ai.error.request_failed')} (${response.status})`);
       }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('无法读取响应流');
+      if (!reader) throw new Error(t('ai.error.no_reader'));
 
       const decoder = new TextDecoder();
       let full = '';
@@ -168,10 +171,10 @@ export default function AiInterpretation({
         }
         return;
       }
-      setErrorMsg(err instanceof Error ? err.message : '未知错误');
+      setErrorMsg(err instanceof Error ? err.message : t('ai.error.unknown'));
       setStatus('error');
     }
-  }, [question, yaos, upperTrigram, lowerTrigram, changedUpperTrigram, changedLowerTrigram, cacheKey, interpretation]);
+  }, [question, yaos, upperTrigram, lowerTrigram, changedUpperTrigram, changedLowerTrigram, cacheKey, interpretation, locale]);
 
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
@@ -187,17 +190,17 @@ export default function AiInterpretation({
   if (status === 'idle' && !interpretation) {
     return (
       <div className="bg-ink-light/30 border border-gold/10 rounded-lg p-6">
-        <h2 className="font-serif-cn text-gold text-lg mb-4">AI 解卦</h2>
+        <h2 className="font-serif-cn text-gold text-lg mb-4">{t('ai.title')}</h2>
         <div className="text-center py-6">
           <p className="text-foreground/40 font-serif-cn mb-4 text-sm">
-            结合卦象、爻辞、五行生克，为您提供智能解读
+            {t('ai.description')}
           </p>
           <button
             onClick={startInterpretation}
             className="px-6 py-2.5 bg-gold/10 border border-gold/30 rounded-lg text-gold font-serif-cn
                        hover:bg-gold/20 hover:border-gold/50 transition-all duration-300 glow-gold"
           >
-            开始解卦
+            {t('ai.start')}
           </button>
         </div>
       </div>
@@ -208,7 +211,7 @@ export default function AiInterpretation({
   if (status === 'error') {
     return (
       <div className="bg-ink-light/30 border border-gold/10 rounded-lg p-6">
-        <h2 className="font-serif-cn text-gold text-lg mb-4">AI 解卦</h2>
+        <h2 className="font-serif-cn text-gold text-lg mb-4">{t('ai.title')}</h2>
         <div className="text-center py-6">
           <p className="text-vermilion font-serif-cn mb-4">{errorMsg}</p>
           <button
@@ -216,7 +219,7 @@ export default function AiInterpretation({
             className="px-6 py-2.5 bg-gold/10 border border-gold/30 rounded-lg text-gold font-serif-cn
                        hover:bg-gold/20 hover:border-gold/50 transition-all duration-300"
           >
-            重试
+            {t('ai.retry')}
           </button>
         </div>
       </div>
@@ -226,7 +229,7 @@ export default function AiInterpretation({
   // Loading / Done state with content
   return (
     <div className="bg-ink-light/30 border border-gold/10 rounded-lg p-6">
-      <h2 className="font-serif-cn text-gold text-lg mb-4">AI 解卦</h2>
+      <h2 className="font-serif-cn text-gold text-lg mb-4">{t('ai.title')}</h2>
       <div ref={contentRef} className="max-h-[600px] overflow-y-auto pr-2">
         <div className="font-serif-cn text-sm">
           {renderMarkdown(interpretation)}
@@ -242,7 +245,7 @@ export default function AiInterpretation({
             className="px-5 py-2 bg-vermilion/10 border border-vermilion/30 rounded-lg text-vermilion text-sm
                        font-serif-cn hover:bg-vermilion/20 transition-all duration-300"
           >
-            停止生成
+            {t('ai.stop')}
           </button>
         ) : (
           <button
@@ -253,7 +256,7 @@ export default function AiInterpretation({
             className="px-5 py-2 bg-gold/10 border border-gold/30 rounded-lg text-gold text-sm
                        font-serif-cn hover:bg-gold/20 hover:border-gold/50 transition-all duration-300"
           >
-            重新解卦
+            {t('ai.regenerate')}
           </button>
         )}
       </div>
