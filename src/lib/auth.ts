@@ -25,6 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth(async () => {
   const env = await getCfEnv();
   return {
     secret: env.AUTH_SECRET,
+    trustHost: true,
     adapter: D1Adapter(env.DB as never),
     providers: [
       Google({
